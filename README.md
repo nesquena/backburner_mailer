@@ -13,21 +13,27 @@ Most of the credit goes to them, this is a minor adaptation to support backburne
 
 Include Backburner::Mailer in your ActionMailer subclass(es) like this:
 
-    class MyMailer < ActionMailer::Base
-      include Backburner::Mailer
-    end
+```ruby
+class MyMailer < ActionMailer::Base
+  include Backburner::Mailer
+end
+```
 
 Now, when `MyMailer.subject_email(params).deliver` is called, an entry
 will be created in the job queue. Your Backburner workers will be able to deliver
 this message for you. The queue we're using is named +mailer+,
 so just make sure your workers know about it and are loading your environment:
 
-    QUEUE=mailer bundle exec rake backburner:work
+```bash
+QUEUE=mailer bundle exec rake backburner:work
+```
 
 Note that you can still have mail delivered synchronously by using the bang
 method variant:
 
-    MyMailer.subject_email(params).deliver!
+```ruby
+MyMailer.subject_email(params).deliver!
+```
 
 Oh, by the way. Don't forget that **your async mailer jobs will be processed by
 a separate worker**. This means that you should resist the temptation to pass
@@ -38,14 +44,18 @@ the id and use it as needed.
 If you want to set a different default queue name for your mailer, you can
 change the `default_queue_name` property like so:
 
-    # config/initializers/backburner_mailer.rb
-    Backburner::Mailer.default_queue_name = 'application_specific_mailer'
+```ruby
+# config/initializers/backburner_mailer.rb
+Backburner::Mailer.default_queue_name = 'application_specific_mailer'
+```
 
 This is useful when you are running more than one application using
 backburner_mailer in a shared environment. You will need to use the new queue
 name when starting your workers.
 
-    QUEUE=application_specific_mailer bundle exec rake backburner:work
+```bash
+QUEUE=application_specific_mailer bundle exec rake backburner:work
+```
 
 Custom handling of errors that arise when sending a message is possible by
 assigning a lambda to the `error_hander` attribute.
