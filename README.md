@@ -6,6 +6,9 @@ for your background jobs.
 
 Note that Backburner::Mailer only works with Rails 3.x and Padrino.
 
+This was **heavily** inspired by and largely adapted from [resque-mailer](https://github.com/zapnap/resque_mailer).
+Most of the credit goes to them, this is a minor adaptation to support backburner.
+
 ## Usage
 
 Include Backburner::Mailer in your ActionMailer subclass(es) like this:
