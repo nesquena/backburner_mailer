@@ -1,4 +1,5 @@
 require "backburner_mailer/version"
+require "backburner"
 
 module Backburner
   module Mailer
@@ -17,7 +18,7 @@ module Backburner
     end
 
     self.logger = nil
-    self.default_queue_target = ::Backburner
+    self.default_queue_target = ::Backburner::Worker
     self.default_queue_name = "mailer"
     self.excluded_environments = []
 
@@ -114,12 +115,12 @@ module Backburner
         @actual_message ||= @mailer_class.send(:new, @method_name, *@args).message
       end
 
-      def deliver
+      def deliver(opts = {})
         return deliver! if environment_excluded?
 
         if @mailer_class.deliver?
           begin
-            backburner.enqueue(@mailer_class, @method_name, *@args)
+            backburner.enqueue(@mailer_class, [@method_name].concat(@args), opts)
           rescue Errno::ECONNREFUSED
             deliver!
           end
