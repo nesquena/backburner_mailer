@@ -41,6 +41,12 @@ database-backed objects as parameters in your mailer and instead pass record
 identifiers. Then, in your delivery method, you can look up the record from
 the id and use it as needed.
 
+If you want to pass options to backburner, you can specify them as arguments to deliver:
+
+```ruby
+MyMailer.subject_email(params).deliver(:delay => 60, :ttr => 120)
+```
+
 If you want to set a different default queue name for your mailer, you can
 change the `default_queue_name` property like so:
 
