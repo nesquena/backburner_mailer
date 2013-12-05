@@ -6,7 +6,7 @@ end
 
 class Rails3Mailer < ActionMailer::Base
   include Backburner::Mailer
-  default :from => "from@example.org", :subject => "Subject"
+  default :from => "from@example.org", :subject => "Subject", :body => "Body"
   MAIL_PARAMS = { :to => "crafty@example.org" }
 
   def test_mail(*params)
@@ -63,8 +63,13 @@ describe Backburner::Mailer do
     end
 
     it 'should place the deliver action on the Backburner "mailer" queue' do
-      backburner.should_receive(:enqueue).with(Rails3Mailer, :test_mail, Rails3Mailer::MAIL_PARAMS)
+      backburner.should_receive(:enqueue).with(Rails3Mailer, [:test_mail, Rails3Mailer::MAIL_PARAMS], {})
       @delivery.call
+    end
+    
+    it 'should send email with after 60 seconds delay using backburner options' do
+      backburner.should_receive(:enqueue).with(Rails3Mailer, [:test_mail, Rails3Mailer::MAIL_PARAMS], { :delay => 60 })
+      Rails3Mailer.test_mail(Rails3Mailer::MAIL_PARAMS).deliver(:delay => 60)
     end
 
     context "when current env is excluded" do
@@ -112,9 +117,9 @@ describe Backburner::Mailer do
     end
 
     context "when job fails" do
-      let(:message) { mock(:message) }
-      let(:mailer) { mock(:mailer, :message => message) }
-      let(:logger) { mock(:logger, :error => nil) }
+      let(:message) { double(:message) }
+      let(:mailer) { double(:mailer, :message => message) }
+      let(:logger) { double(:logger, :error => nil) }
       let(:exception) { Exception.new("An error") }
 
       before(:each) do
